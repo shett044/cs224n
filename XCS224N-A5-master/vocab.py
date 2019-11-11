@@ -44,7 +44,8 @@ class VocabEntry(object):
         self.char_list = list("""ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789,;.!?:'\"/\\|_@#$%^&*~`+-=<>()[]""")
 
         self.char2id = dict() # Converts characters to integers
-        self.char2id['<pad>'] = 0
+        self.PAD_CHAR = '<pad>'
+        self.char2id[self.PAD_CHAR] = 0
         self.char2id['{'] = 1
         self.char2id['}'] = 2
         self.char2id['<unk>'] = 3
@@ -123,7 +124,7 @@ class VocabEntry(object):
         ###     You must prepend each word with the `start_of_word` character and append 
         ###     with the `end_of_word` character. 
 
-
+        return [[[self.start_of_word] + [self.char2id[c] for c in w] + [self.end_of_word] for w in s] for s in sents]
         ### END YOUR CODE
 
     def words2indices(self, sents):
@@ -153,9 +154,14 @@ class VocabEntry(object):
         ### TODO: 
         ###     Connect `words2charindices()` and `pad_sents_char()` which you've defined in 
         ###     previous parts
-        
-
+        sents_t = pad_sents_char(self.words2charindices(sents), self.char2id[self.PAD_CHAR])
+        ten_sents = torch.tensor(sents_t, dtype=torch.long, device=device)
+        # max_sentence_length, max_word_length, batch_size = len(sents_t[0]), len(sents_t[0][0]), len(sents_t)
+        # ten_sents = ten_sents.view(max_sentence_length, batch_size, max_word_length)
+        ten_sents = ten_sents.permute(1, 0, 2)
         ### END YOUR CODE
+
+        return ten_sents
 
     def to_input_tensor(self, sents: List[List[str]], device: torch.device) -> torch.Tensor:
         """ Convert list of sentences (words) into tensor with necessary padding for 

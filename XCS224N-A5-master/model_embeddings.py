@@ -10,20 +10,25 @@ import torch.nn as nn
 
 from cnn import CNN
 from highway import Highway
+
+
 #
 # End "do not change" 
 
-class ModelEmbeddings(nn.Module): 
+class ModelEmbeddings(nn.Module):
     """
     Class that converts input words to their CNN-based embeddings.
     """
-    def __init__(self, embed_size, vocab):
+
+    def __init__(self, embed_size, vocab, dropout_rate=0.3):
         """
         Init the Embedding layer for one language
         @param embed_size (int): Embedding size (dimensionality) for the output 
         @param vocab (VocabEntry): VocabEntry object. See vocab.py for documentation.
         """
         super(ModelEmbeddings, self).__init__()
+        self.dropout_rate = dropout_rate
+        self.dropout = nn.Dropout(self.dropout_rate)
 
         ## A4 code
         # pad_token_idx = vocab.src['<pad>']
@@ -31,11 +36,9 @@ class ModelEmbeddings(nn.Module):
         ## End A4 code
 
         ### YOUR CODE HERE for part 1f
-        self.embed_word_size = embed_size
+        self.embed_size = embed_size
         self.ember_char_size = 50
         self.embedding = nn.Embedding(len(vocab), self.ember_char_size, padding_idx=vocab.char2id[vocab.PAD_CHAR])
-
-
 
         ### END YOUR CODE
 
@@ -52,18 +55,17 @@ class ModelEmbeddings(nn.Module):
         # output = self.embeddings(input)
         # return output
         ## End A4 code
-        print("Embedding forward()")
+        # print("Embedding forward()")
         ### YOUR CODE HERE for part 1f
-        print("Size of input => ", input.size())
+        # print("Size of input => ", input.size())
         x_emb = self.embedding(input)
-        print("Size of embed_res => ", x_emb.size())
+        # print("Size of embed_res => ", x_emb.size())
         x_reshape = x_emb.permute(0, 1, 3, 2)
-        res  = []
-        # for s in x_emb:
-        c = CNN(x_reshape, self.embed_word_size)
+        res = []
+        c = CNN(x_reshape, self.embed_size)
         c_res = c()
-        h = Highway(c_res, dropout_rate=0.3)
-        res = h()
-        return res
+        h = Highway(c_res)
+        x_highway = h()
+        x_word_embd = self.dropout(x_highway)
+        return x_word_embd
         ### END YOUR CODE
-

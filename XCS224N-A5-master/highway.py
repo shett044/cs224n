@@ -10,7 +10,7 @@ class Highway(nn.Module):
     Works like a skip connection in ResNet but defines gates for the convolution result
     """
 
-    def __init__(self, conv_out_tor, dropout_rate=0.2):
+    def __init__(self, conv_out_tor):
         """
 
         :param conv_out_tor: convolution output of character embedding
@@ -18,16 +18,10 @@ class Highway(nn.Module):
         """
         super(Highway, self).__init__()
         self.x_conv_out = conv_out_tor
-        self.dropout_rate = dropout_rate
-        print("Highway Init")
-        print("conv_out_tor  size : ", conv_out_tor.size())
         self.sentence_len, self.batch_size, self.embed_word = conv_out_tor.size()
 
         self.Xproj = nn.Linear(self.embed_word, self.embed_word, bias=True)
         self.Xgate = nn.Linear(self.embed_word, self.embed_word, bias=True)
-        nn.init.xavier_uniform_(self.Xproj.weight, gain=1)
-        nn.init.xavier_uniform_(self.Xgate.weight, gain=1)
-        self.dropout = nn.Dropout(self.dropout_rate)
 
     def forward(self):
         """
@@ -35,14 +29,13 @@ class Highway(nn.Module):
         x_proj involves RELU that will be carried forward but its value is gated by x_gate that weight how much information to carry forward
         :return: x_highway: tensor of batch_size, word_embed_size
         """
-        print("Highway: forward method")
-        print("Size of x_conv_out: ", self.x_conv_out.size())
-        x_proj = self.dropout(F.relu(self.Xproj(self.x_conv_out)))
+        # print("Highway: forward method")
+        # print("Size of x_conv_out: ", self.x_conv_out.size())
+        x_proj = F.relu(self.Xproj(self.x_conv_out))
         x_gate = nn.Sigmoid()(self.Xgate(self.x_conv_out))
         x_highway = x_gate * x_proj + (1 - x_gate) * self.x_conv_out
-        print("Size of x_highway: ", x_highway.size())
-        x_word_embd = self.dropout(x_highway)
-        print("Size of x_word_embd: ", x_word_embd.size())
-        return x_word_embd
+
+        # print("Size of x_word_embd: ", x_word_embd.size())
+        return x_highway
 
 ### END YOUR CODE

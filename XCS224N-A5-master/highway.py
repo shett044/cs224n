@@ -20,8 +20,8 @@ class Highway(nn.Module):
         self.x_conv_out = conv_out_tor
         self.sentence_len, self.batch_size, self.embed_word = conv_out_tor.size()
 
-        self.Xproj = nn.Linear(self.embed_word, self.embed_word, bias=True)
-        self.Xgate = nn.Linear(self.embed_word, self.embed_word, bias=True)
+        self.proj_NN = nn.Linear(self.embed_word, self.embed_word, bias=True)
+        self.gate_NN = nn.Linear(self.embed_word, self.embed_word, bias=True)
 
     def forward(self):
         """
@@ -31,8 +31,8 @@ class Highway(nn.Module):
         """
         # print("Highway: forward method")
         # print("Size of x_conv_out: ", self.x_conv_out.size())
-        x_proj = F.relu(self.Xproj(self.x_conv_out))
-        x_gate = nn.Sigmoid()(self.Xgate(self.x_conv_out))
+        x_proj = F.relu(self.proj_NN(self.x_conv_out))
+        x_gate = nn.Sigmoid()(self.gate_NN(self.x_conv_out))
         x_highway = x_gate * x_proj + (1 - x_gate) * self.x_conv_out
 
         # print("Size of x_word_embd: ", x_word_embd.size())

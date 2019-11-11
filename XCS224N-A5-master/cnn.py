@@ -21,8 +21,8 @@ class CNN(nn.Module):
         cnn_res = F.relu(cnn_m(self.x_reshape))
         # print("cnn_res => ", cnn_res.size())
         max_pool_filter = cnn_res.size()[-1]
-        x_conv_out = nn.MaxPool1d(max_pool_filter)(cnn_res).squeeze(2)
-        x_conv_out = x_conv_out.view(self.sentence_len, self.batch_size, self.embd_word_len)
+        x_conv_out = nn.MaxPool1d(max_pool_filter)(cnn_res)
+        x_conv_out = x_conv_out.reshape(self.sentence_len, self.batch_size, -1)
         # print("x_conv_out => ", x_conv_out.size())
 
         return x_conv_out

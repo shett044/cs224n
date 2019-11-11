@@ -38,7 +38,7 @@ class ModelEmbeddings(nn.Module):
         ### YOUR CODE HERE for part 1f
         self.embed_size = embed_size
         self.ember_char_size = 50
-        self.embedding = nn.Embedding(len(vocab), self.ember_char_size, padding_idx=vocab.char2id[vocab.PAD_CHAR])
+        self.embedding = nn.Embedding(len(vocab.char2id), self.ember_char_size, padding_idx=vocab.char2id[vocab.PAD_CHAR])
 
         ### END YOUR CODE
 

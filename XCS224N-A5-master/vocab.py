@@ -44,8 +44,7 @@ class VocabEntry(object):
         self.char_list = list("""ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789,;.!?:'\"/\\|_@#$%^&*~`+-=<>()[]""")
 
         self.char2id = dict() # Converts characters to integers
-        self.PAD_CHAR = '<pad>'
-        self.char2id[self.PAD_CHAR] = 0
+        self.char2id['<pad>'] = 0
         self.char2id['{'] = 1
         self.char2id['}'] = 2
         self.char2id['<unk>'] = 3

@@ -25,7 +25,7 @@ class CharDecoder(nn.Module):
         ###       - Set the padding_idx argument of the embedding matrix.
         ###       - Create a new Embedding layer. Do not reuse embeddings created in Part 1 of this assignment.
         super(CharDecoder, self).__init__()
-        print("char_embedding_size, hidden_size: ", char_embedding_size, hidden_size)
+        # print("char_embedding_size, hidden_size: ", char_embedding_size, hidden_size)
         self.charDecoder = nn.LSTM(char_embedding_size, hidden_size)
         # TODO: check this target_vocab.char2id
         self.char_output_projection = nn.Linear(hidden_size, len(target_vocab.char2id))
@@ -77,7 +77,7 @@ class CharDecoder(nn.Module):
         scores, dec_hidden = self.forward(inp, dec_hidden)
         # print("tgt ", tgt.size())
         # print("scores ", scores.size())
-        scores = scores.reshape(-1, 30)
+        scores = scores.reshape(-1, scores.size(2))
         return loss_func(scores, tgt)
         ### END YOUR CODE
 
@@ -101,8 +101,8 @@ class CharDecoder(nn.Module):
         start_t = torch.tensor([self.target_vocab.start_of_word], dtype=torch.long, device=device)
         batch_size = initialStates[0].size(1)
         start_t = start_t.expand(batch_size, 1).transpose(1,0)
-        print(start_t)
-        print(start_t.size())
+        # print(start_t)
+        # print(start_t.size())
         start_emb = self.decoderCharEmb(start_t)
 
         ht, ct = initialStates
@@ -111,16 +111,16 @@ class CharDecoder(nn.Module):
         for i in range(max_length):
             res, (ht, ct) = self.charDecoder(start_emb, (ht, ct))
             scores = self.char_output_projection(res)
-            print(scores)
-            print(scores.size())
+            # print(scores)
+            # print(scores.size())
             next_char = softmax(scores).argmax(2)
             start_t = next_char
-            print(start_t.size())
+            # print(start_t.size())
             start_emb = self.decoderCharEmb(start_t)
 
             res_word = torch.cat((res_word, start_t), 0)
 
-        res_batch = res_word.reshape(5, -1).tolist()
+        res_batch = res_word.reshape(batch_size, -1).tolist()
         res_list = [[self.target_vocab.id2char[x] for x in res[1:]] for res in res_batch]
 
         final_words = []

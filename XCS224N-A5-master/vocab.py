@@ -155,7 +155,7 @@ class VocabEntry(object):
         ###     previous parts
         sents_t = pad_sents_char(self.words2charindices(sents), self['<pad>'])
         ten_sents = torch.tensor(sents_t, dtype=torch.long, device=device)
-        ten_sents = ten_sents.permute(1, 0, 2)
+        ten_sents = ten_sents.permute(1, 0, 2).contiguous()
         ### END YOUR CODE
 
         return ten_sents

@@ -106,8 +106,8 @@ class CharDecoder(nn.Module):
         start_emb = self.decoderCharEmb(start_t)
 
         ht, ct = initialStates
-        res_word = torch.zeros((1, batch_size,), dtype=torch.long, device=device)
-        softmax = nn.Softmax(dim=1)
+        res_word = torch.zeros((1, batch_size), dtype=torch.long, device=device)
+        softmax = nn.Softmax(dim=2)
         for i in range(max_length):
             res, (ht, ct) = self.charDecoder(start_emb, (ht, ct))
             scores = self.char_output_projection(res)
@@ -120,7 +120,7 @@ class CharDecoder(nn.Module):
 
             res_word = torch.cat((res_word, start_t), 0)
 
-        res_batch = res_word.reshape(batch_size, -1).tolist()
+        res_batch = res_word.transpose(1,0).tolist()
         res_list = [[self.target_vocab.id2char[x] for x in res[1:]] for res in res_batch]
 
         final_words = []
@@ -132,6 +132,7 @@ class CharDecoder(nn.Module):
                 word += s[i]
                 i += 1
             final_words.append(word)
+        # print(final_words)
         return final_words
 
         ### END YOUR CODE
